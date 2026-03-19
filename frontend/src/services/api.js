@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getErrorMessage, isRateLimitError, isRequestCanceled } from '../utils/helpers.js'
 
 const apiBase = import.meta.env.VITE_API_BASE || '/api/v1'
 
@@ -18,9 +19,16 @@ client.interceptors.request.use((config) => {
 client.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (isRequestCanceled(error)) {
+      return Promise.reject(error)
+    }
+
     if (!error.response) {
       error.message = 'Cannot reach backend API. Ensure the backend is running and available at the same origin.'
       _dispatchApiError('network', 'Network Error: Cannot reach backend application.')
+    } else if (isRateLimitError(error)) {
+      error.message = getErrorMessage(error, 'Too many requests right now. Please wait a moment and try again.')
+      _dispatchApiError('rate_limit', error.message)
     } else if (error.response.status >= 500) {
       _dispatchApiError('server', 'Service Disruption: Backend services are currently unavailable or degraded.')
     }

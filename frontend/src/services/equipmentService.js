@@ -6,8 +6,8 @@ export const equipmentService = {
     const { data } = await client.get('/equipment', { params })
     return Array.isArray(data) ? data : []
   },
-  async browse(params = {}) {
-    const { data } = await client.get('/equipment/browse', { params })
+  async browse(params = {}, options = {}) {
+    const { data } = await client.get('/equipment/browse', { params, ...options })
     if (Array.isArray(data)) {
       return {
         items: data,

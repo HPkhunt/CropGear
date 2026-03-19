@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { equipmentService } from '../services/equipmentService';
 import { miscService } from '../services/miscService';
 import { getEquipmentImage } from '../utils/equipmentImages.js';
+import { getErrorMessage, isRequestCanceled } from '../utils/helpers.js';
 import './Home.css';
 
 import heroBanner from '../assets/images/hero_banner_1772246252951.png';
@@ -31,6 +32,8 @@ const whyItems = [
 ];
 
 const EMPTY_STATS = { equipments: null, owners: null, bookings: null };
+const SUGGESTION_DEBOUNCE_MS = 350;
+const SUGGESTION_MIN_QUERY_LENGTH = 2;
 
 const normalizeStats = (payload) => ({
     equipments: (payload && typeof payload.equipments === 'number') ? payload.equipments : null,
@@ -52,40 +55,109 @@ const Home = () => {
         { quote: 'Renting out my idle tractor paid for its maintenance for the whole year.', author: 'Sarah M., Midwest Ag' }
     ]);
     const [currentTestimonial, setCurrentTestimonial] = useState(0);
+    const suggestionTimeoutRef = useRef(null);
+    const suggestionAbortRef = useRef(null);
+
+    const clearPendingSuggestionRequest = () => {
+        if (suggestionTimeoutRef.current) {
+            window.clearTimeout(suggestionTimeoutRef.current);
+            suggestionTimeoutRef.current = null;
+        }
+
+        if (suggestionAbortRef.current) {
+            suggestionAbortRef.current.abort();
+            suggestionAbortRef.current = null;
+        }
+    };
+
+    const hideSuggestions = () => {
+        setSuggestions([]);
+        setShowSuggestions(false);
+    };
 
     const handleCategoryClick = (label) => {
         navigate(`/farmer/equipments?category=${encodeURIComponent(label)}`);
     };
 
-    const handleSearchChange = async (e) => {
+    const handleSearchChange = (e) => {
         const q = e.target.value;
         setSearchQuery(q);
-        if (q.trim()) {
-            try {
-                const { items } = await equipmentService.browse({ q, page_size: 5 });
-                setSuggestions(items);
-                setShowSuggestions(true);
-            } catch (err) {
-                console.error('suggestion fetch failed', err);
-            }
-        } else {
-            setSuggestions([]);
-            setShowSuggestions(false);
+        if (!q.trim()) {
+            clearPendingSuggestionRequest();
+            hideSuggestions();
         }
     };
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        setShowSuggestions(false);
-        if (searchQuery.trim()) {
-            navigate(`/farmer/equipments?q=${encodeURIComponent(searchQuery)}`);
+        clearPendingSuggestionRequest();
+        hideSuggestions();
+        const trimmedQuery = searchQuery.trim();
+        if (trimmedQuery) {
+            navigate(`/farmer/equipments?q=${encodeURIComponent(trimmedQuery)}`);
         }
     };
 
     const handleSuggestionClick = (id) => {
-        setShowSuggestions(false);
+        clearPendingSuggestionRequest();
+        hideSuggestions();
         navigate(`/equipment/${id}`);
     };
+
+    useEffect(() => {
+        const trimmedQuery = searchQuery.trim();
+
+        if (trimmedQuery.length < SUGGESTION_MIN_QUERY_LENGTH) {
+            clearPendingSuggestionRequest();
+            hideSuggestions();
+            return undefined;
+        }
+
+        clearPendingSuggestionRequest();
+
+        const controller = new AbortController();
+        suggestionAbortRef.current = controller;
+
+        suggestionTimeoutRef.current = window.setTimeout(async () => {
+            suggestionTimeoutRef.current = null;
+            try {
+                const { items } = await equipmentService.browse(
+                    { q: trimmedQuery, page_size: 5 },
+                    { signal: controller.signal }
+                );
+
+                if (controller.signal.aborted) {
+                    return;
+                }
+
+                setSuggestions(items);
+                setShowSuggestions(items.length > 0);
+            } catch (err) {
+                if (isRequestCanceled(err)) {
+                    return;
+                }
+
+                hideSuggestions();
+                console.error('suggestion fetch failed', getErrorMessage(err, 'Unable to load suggestions.'));
+            } finally {
+                if (suggestionAbortRef.current === controller) {
+                    suggestionAbortRef.current = null;
+                }
+            }
+        }, SUGGESTION_DEBOUNCE_MS);
+
+        return () => {
+            if (suggestionTimeoutRef.current) {
+                window.clearTimeout(suggestionTimeoutRef.current);
+                suggestionTimeoutRef.current = null;
+            }
+
+            controller.abort();
+            if (suggestionAbortRef.current === controller) {
+                suggestionAbortRef.current = null;
+            }
+        };
+    }, [searchQuery]);
 
     useEffect(() => {
         const loadHomePageData = async () => {
