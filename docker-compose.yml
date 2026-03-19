@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:6
+    container_name: cropgear-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongo:/data/db
+    restart: unless-stopped
