@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 class MongoDBClient:
     client: Optional[AsyncIOMotorClient] = None
     db: Optional[AsyncIOMotorDatabase] = None
-    is_demo: bool = False
 
 
 mongodb_client = MongoDBClient()
@@ -70,13 +69,11 @@ async def connect_db():
     try:
         from mongomock_motor import AsyncMongoMockClient
         mongodb_client.client = AsyncMongoMockClient()
-        mongodb_client.is_demo = True
     except ImportError:
         mongodb_client.client = AsyncIOMotorClient(
             settings.MONGODB_URL,
             **kwargs
         )
-        mongodb_client.is_demo = False
     try:
         await mongodb_client.client.admin.command("ping")
         mongodb_client.db = mongodb_client.client[settings.DATABASE_NAME]

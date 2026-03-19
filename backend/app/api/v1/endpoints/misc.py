@@ -5,7 +5,7 @@ from fastapi import APIRouter, status, Body, Depends
 from pydantic import BaseModel, Field
 
 from app.core.exceptions import APIException
-from app.db.client import get_required_db, mongodb_client
+from app.db.client import get_required_db
 from app.db.utils import serialize_docs
 from app.dependencies import get_current_admin
 from app.config import settings
@@ -21,7 +21,7 @@ async def get_stats(db=Depends(get_required_db)) -> Dict:
     equipments = await db.equipment.count_documents({})
     owners = await db.users.count_documents({"role": "equipment_owner"})
     bookings = await db.bookings.count_documents({})
-    return {"equipments": equipments, "owners": owners, "bookings": bookings, "is_demo": mongodb_client.is_demo}
+    return {"equipments": equipments, "owners": owners, "bookings": bookings}
 
 @router.get("/testimonials")
 async def get_testimonials(db=Depends(get_required_db)):

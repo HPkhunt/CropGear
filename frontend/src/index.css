@@ -179,24 +179,7 @@ p {
   color: var(--primary);
 }
 
-.demo-indicator-pill {
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(220, 38, 38, 0.95);
-  color: #fff;
-  font-size: 0.68rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 4px 14px;
-  border-radius: 999px;
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-  z-index: 10;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
+
 
 .nav-actions {
   margin-left: auto;
