@@ -41,5 +41,6 @@ try {
 } finally {
     if (!$frontend.HasExited) { Stop-Process -Id $frontend.Id -Force -ErrorAction SilentlyContinue }
     if (!$backend.HasExited) { Stop-Process -Id $backend.Id -Force -ErrorAction SilentlyContinue }
-    Write-Host "`nServers stopped." -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "Servers stopped." -ForegroundColor Yellow
 }

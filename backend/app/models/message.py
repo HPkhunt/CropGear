@@ -24,12 +24,11 @@ class MessageResponse(BaseModel):
     id: str
     sender_id: str
     recipient_id: str
-    content: str
-    message_type: str
+    message: str
+    timestamp: datetime
+    status: str  # sent, delivered, seen
+    message_type: str = "text"
     attachment_url: Optional[str] = None
-    is_read: bool
-    created_at: datetime
-    updated_at: datetime
     sender_name: Optional[str] = None
     sender_avatar: Optional[str] = None
 
@@ -43,11 +42,24 @@ class ConversationCreate(BaseModel):
 class ConversationResponse(BaseModel):
     """Conversation response model"""
     id: str
-    participant_ids: List[str]
-    last_message: Optional[MessageResponse] = None
-    last_message_at: Optional[datetime] = None
+    participants: List[str]
+    last_message: Optional[str] = None
+    updated_at: Optional[datetime] = None
     unread_count: int = 0
     created_at: datetime
+
+
+class TypingIndicator(BaseModel):
+    """Typing indicator model"""
+    user_id: str
+    is_typing: bool
+
+
+class MessageReaction(BaseModel):
+    """Message reaction model"""
+    emoji: str
+    user_id: str
+    added_at: datetime
     updated_at: datetime
     participants: Optional[List[dict]] = None  # User info for participants
 

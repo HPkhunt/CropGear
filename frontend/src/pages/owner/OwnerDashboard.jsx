@@ -7,6 +7,7 @@ import PageHero from '../../components/PageHero.jsx';
 import EmptyState from '../../components/EmptyState.jsx';
 import SmartImage from '../../components/SmartImage.jsx';
 import DashboardShell from '../../components/DashboardShell.jsx';
+import ChatList from '../../components/ChatList.jsx';
 
 export default function OwnerDashboard() {
   const [items, setItems] = useState([]);
@@ -184,6 +185,7 @@ export default function OwnerDashboard() {
           />
         )}
       </DashboardShell>
+      <ChatList />
     </div>
   );
 }

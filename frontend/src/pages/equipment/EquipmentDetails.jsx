@@ -2,8 +2,14 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { equipmentService } from '../../services/equipmentService.js'
 import { bookingService } from '../../services/bookingService.js'
+import { reviewService } from '../../services/reviewService.js'
+import { chatService } from '/src/services/chatService.js'
 import Loader from '../../components/Loader.jsx'
 import PageHero from '../../components/PageHero.jsx'
+import { StarRatingDisplay } from '../../components/StarRating.jsx'
+import ReviewCard from '../../components/ReviewCard.jsx'
+import RatingBreakdown from '../../components/RatingBreakdown.jsx'
+import { User, MapPin, Tag, ClipboardList, MessageCircle } from 'lucide-react'
 import { getEquipmentImage } from '../../utils/equipmentImages.js'
 import useAuth from '../../hooks/useAuth.js'
 import { getErrorMessage } from '../../utils/helpers.js'
@@ -49,6 +55,8 @@ export default function EquipmentDetails() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [requesting, setRequesting] = useState(false)
+  const [reviews, setReviews] = useState([])
+  const [reviewMeta, setReviewMeta] = useState({ total: 0, breakdown: {} })
   const { addToast } = useToast()
 
   useEffect(() => {
@@ -64,6 +72,20 @@ export default function EquipmentDetails() {
     fetchData()
   }, [id])
 
+  useEffect(() => {
+    if (!id) return
+    reviewService.getEquipmentReviews(id, 1, 10)
+      .then(data => {
+        const list = data?.reviews || data?.items || (Array.isArray(data) ? data : [])
+        setReviews(list)
+        setReviewMeta({
+          total: data?.total || list.length,
+          breakdown: data?.breakdown || {}
+        })
+      })
+      .catch(() => {})
+  }, [id])
+
   const image = useMemo(() => getEquipmentImage(item || {}), [item])
   const galleryImages = useMemo(
     () => CATEGORY_GALLERY[item?.category] || CATEGORY_GALLERY.default,
@@ -71,7 +93,8 @@ export default function EquipmentDetails() {
   )
   const stats = [
     { value: `$${Number(item?.daily_rate || 0).toLocaleString()}`, label: 'Daily rate' },
-    { value: item?.rating || 'N/A', label: 'Rating' },
+    { value: Number(item?.rating || item?.average_rating || 0).toFixed(1), label: 'Rating' },
+    { value: item?.reviews_count || item?.total_reviews || reviews.length || 0, label: 'Reviews' },
     { value: item?.is_available === false ? 'Unavailable' : 'Available', label: 'Status' }
   ]
   const ownerName = item?.owner_name || 'Equipment Owner'
@@ -132,6 +155,28 @@ export default function EquipmentDetails() {
       addToast('Page link copied to clipboard.', 'success')
     } catch {
       addToast('Could not copy link.', 'error')
+    }
+  }
+
+  const contactOwner = async () => {
+    if (!isAuthenticated) {
+      addToast('Please sign in to contact the owner.', 'error')
+      return
+    }
+
+    if (user?.id === item.owner_id) {
+      addToast('You cannot contact yourself.', 'error')
+      return
+    }
+
+    try {
+      const conversation = await chatService.createConversation(
+        item.owner_id,
+        `Hi, I'm interested in your ${item.name}. Can we discuss availability?`
+      )
+      addToast('Chat started! Check your messages.', 'success')
+    } catch (error) {
+      addToast(getErrorMessage(error, 'Unable to start chat.'), 'error')
     }
   }
 
@@ -242,28 +287,28 @@ export default function EquipmentDetails() {
             <h3>Listing Summary</h3>
             <div className="panel-list-premium">
               <div className="insight-stat-row">
-                <div className="stat-icon-wrap">👤</div>
+                <div className="stat-icon-wrap"><User size={18} /></div>
                 <div className="stat-info-wrap">
                   <strong>{ownerName}</strong>
                   <span>Owner</span>
                 </div>
               </div>
               <div className="insight-stat-row">
-                <div className="stat-icon-wrap">📍</div>
+                <div className="stat-icon-wrap"><MapPin size={18} /></div>
                 <div className="stat-info-wrap">
                   <strong>{item.location || 'Location'}</strong>
                   <span>Location</span>
                 </div>
               </div>
               <div className="insight-stat-row">
-                <div className="stat-icon-wrap">🏷️</div>
+                <div className="stat-icon-wrap"><Tag size={18} /></div>
                 <div className="stat-info-wrap">
                   <strong>{item.category || 'Category'}</strong>
                   <span>Category</span>
                 </div>
               </div>
               <div className="insight-stat-row">
-                <div className="stat-icon-wrap">📋</div>
+                <div className="stat-icon-wrap"><ClipboardList size={18} /></div>
                 <div className="stat-info-wrap">
                   <strong>{specCount}</strong>
                   <span>Specs listed</span>
@@ -283,9 +328,47 @@ export default function EquipmentDetails() {
             <div className="button-row">
               <Link className="button sm secondary pill hover-lift" to="/farmer/equipments">Browse More</Link>
               <button className="button sm outline pill hover-lift" onClick={copyLink}>Copy Link</button>
+              {isAuthenticated && user?.role === 'farmer' && user?.id !== item.owner_id && (
+                <button className="button sm primary pill hover-lift" onClick={contactOwner}>
+                  <MessageCircle size={16} /> Contact Owner
+                </button>
+              )}
             </div>
           </section>
         </aside>
+      </section>
+
+      {/* Reviews Section */}
+      <section className="reviews-section">
+        <div className="card">
+          <div className="reviews-section-header">
+            <div className="reviews-summary">
+              <span className="reviews-avg-big">{Number(item.average_rating || item.rating || 0).toFixed(1)}</span>
+              <div>
+                <StarRatingDisplay rating={item.average_rating || item.rating || 0} size={20} showValue={false} />
+                <p className="subtitle" style={{ margin: '4px 0 0' }}>{reviewMeta.total || reviews.length} review{(reviewMeta.total || reviews.length) !== 1 ? 's' : ''}</p>
+              </div>
+            </div>
+            {Object.keys(reviewMeta.breakdown).length > 0 && (
+              <RatingBreakdown breakdown={reviewMeta.breakdown} total={reviewMeta.total} />
+            )}
+          </div>
+
+          {reviews.length > 0 ? (
+            <div className="reviews-grid">
+              {reviews.map((review, i) => (
+                <ReviewCard key={review.id || i} review={review} />
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+              <p className="subtitle">No reviews yet for this equipment.</p>
+              {isAuthenticated && user?.role === 'farmer' && (
+                <p className="subtitle">Book and try this equipment — then be the first to leave a review!</p>
+              )}
+            </div>
+          )}
+        </div>
       </section>
     </div>
   )

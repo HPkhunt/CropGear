@@ -22,6 +22,8 @@
 
 .hover-lift:hover {
     transform: translateY(-8px);
+    z-index: 10;
+    position: relative;
 }
 
 .chip-verified {

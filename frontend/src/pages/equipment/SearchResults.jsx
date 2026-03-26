@@ -1,4 +1,5 @@
-﻿import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { ClipboardList, Search, FileText, Star, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { equipmentService } from '../../services/equipmentService.js'
 import EquipmentCard from '../../components/EquipmentCard.jsx'
@@ -105,7 +106,7 @@ export default function SearchResults() {
                         disabled={safePage <= 1}
                         onClick={() => { setCurrentPage((p) => Math.max(p - 1, 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                       >
-                        ← Prev
+                        <ChevronLeft size={16} /> Prev
                       </button>
                       <button
                         type="button"
@@ -113,7 +114,7 @@ export default function SearchResults() {
                         disabled={safePage >= totalPages}
                         onClick={() => { setCurrentPage((p) => Math.min(p + 1, totalPages)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                       >
-                        Next →
+                        Next <ChevronRight size={16} />
                       </button>
                     </div>
                   </div>
@@ -133,28 +134,28 @@ export default function SearchResults() {
             <h3>Search Insights</h3>
             <div className="panel-list-premium">
               <div className="insight-stat-row">
-                <div className="stat-icon-wrap">🔍</div>
+                <div className="stat-icon-wrap"><Search size={18} /></div>
                 <div className="stat-info-wrap">
                   <strong>{query || 'All'}</strong>
                   <span>Search query</span>
                 </div>
               </div>
               <div className="insight-stat-row">
-                <div className="stat-icon-wrap">📋</div>
+                <div className="stat-icon-wrap"><ClipboardList size={18} /></div>
                 <div className="stat-info-wrap">
                   <strong>{totalItems}</strong>
                   <span>Total matches</span>
                 </div>
               </div>
               <div className="insight-stat-row">
-                <div className="stat-icon-wrap">📄</div>
+                <div className="stat-icon-wrap"><FileText size={18} /></div>
                 <div className="stat-info-wrap">
                   <strong>{visible.length}</strong>
                   <span>Shown on page</span>
                 </div>
               </div>
               <div className="insight-stat-row">
-                <div className="stat-icon-wrap">⭐</div>
+                <div className="stat-icon-wrap"><Star size={18} /></div>
                 <div className="stat-info-wrap">
                   <strong>{favoriteIds.length}</strong>
                   <span>Saved equipment</span>

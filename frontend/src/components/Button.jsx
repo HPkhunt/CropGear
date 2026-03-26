@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { Loader2 } from 'lucide-react'
 
 export function Button({
   children,
@@ -48,7 +49,7 @@ export function Button({
       onClick={onClick}
       {...props}
     >
-      {loading ? '⏳ Loading...' : children}
+      {loading ? <><Loader2 size={16} className="spin" /> Loading...</> : children}
     </button>
   )
 }

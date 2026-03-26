@@ -1,4 +1,5 @@
-﻿import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { equipmentService } from '../../services/equipmentService.js'
 import PageHero from '../../components/PageHero.jsx'
@@ -91,7 +92,7 @@ export default function AddEquipment() {
       setImageAssetId(assetId || '')
       setImageUrl(finalUrl)
       setImagePreview(finalUrl)
-      setMessage('✨ AI image generated & uploaded successfully.')
+      setMessage('AI image generated & uploaded successfully.')
       setTimeout(() => setMessage(''), 3000)
     } catch (err) {
       console.error('AI image generation failed', err)
@@ -283,7 +284,7 @@ export default function AddEquipment() {
                     onClick={generateAiImage}
                     disabled={uploading}
                   >
-                    {uploading ? 'Generating...' : '✨ Use AI Generator'}
+                    {uploading ? 'Generating...' : <><Sparkles size={16} /> Use AI Generator</>}
                   </button>
                 </div>
 

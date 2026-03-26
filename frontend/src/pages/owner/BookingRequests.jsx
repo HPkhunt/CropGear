@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { Clock, CheckCircle, XCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { bookingService } from '../../services/bookingService.js'
 import PageSkeleton from '../../components/PageSkeleton.jsx'
@@ -183,21 +184,21 @@ export default function BookingRequests() {
               <h3>Request Summary</h3>
               <div className="panel-list-premium">
                 <div className="insight-stat-row">
-                  <div className="stat-icon-wrap">⏳</div>
+                  <div className="stat-icon-wrap"><Clock size={18} /></div>
                   <div className="stat-info-wrap">
                     <strong>{statusSummary.pending}</strong>
                     <span>Pending requests</span>
                   </div>
                 </div>
                 <div className="insight-stat-row">
-                  <div className="stat-icon-wrap">✅</div>
+                  <div className="stat-icon-wrap"><CheckCircle size={18} /></div>
                   <div className="stat-info-wrap">
                     <strong>{statusSummary.confirmed}</strong>
                     <span>Confirmed</span>
                   </div>
                 </div>
                 <div className="insight-stat-row">
-                  <div className="stat-icon-wrap">❌</div>
+                  <div className="stat-icon-wrap"><XCircle size={18} /></div>
                   <div className="stat-info-wrap">
                     <strong>{statusSummary.rejected}</strong>
                     <span>Rejected</span>

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { ClipboardList, Eye } from 'lucide-react'
 import PageHero from '../../components/PageHero.jsx'
 import Loader from '../../components/Loader.jsx'
 import { adminService } from '../../services/adminService.js'
@@ -142,14 +143,14 @@ export default function AdminEquipment() {
             <h3>Visibility Snapshot</h3>
             <div className="panel-list-premium">
               <div className="insight-stat-row">
-                <div className="stat-icon-wrap">📋</div>
+                <div className="stat-icon-wrap"><ClipboardList size={18} /></div>
                 <div className="stat-info-wrap">
                   <strong>{items.length}</strong>
                   <span>Total listings</span>
                 </div>
               </div>
               <div className="insight-stat-row">
-                <div className="stat-icon-wrap">👁️</div>
+                <div className="stat-icon-wrap"><Eye size={18} /></div>
                 <div className="stat-info-wrap">
                   <strong>{visibleCount}</strong>
                   <span>Visible to farmers</span>

@@ -60,6 +60,18 @@ class CreateEquipmentRequest(BaseModel):
         return cleaned or None
 
 
+class UpdateEquipmentRequest(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=2, max_length=120)
+    category: Optional[str] = Field(default=None, pattern=r"^(tractor|harvester|seeder|tillage|irrigation|crop_care)$")
+    daily_rate: Optional[float] = Field(default=None, gt=0)
+    location: Optional[str] = None
+    description: Optional[str] = None
+    specs: Optional[list[str]] = None
+    image_url: Optional[str] = Field(default=None, max_length=2_000_000)
+    image_asset_id: Optional[str] = Field(default=None, min_length=1)
+    is_available: Optional[bool] = None
+
+
 # Advanced Search Models - Task 4
 class LocationCoordinates(BaseModel):
     latitude: float = Field(ge=-90, le=90)
@@ -288,6 +300,45 @@ async def get_equipment(equipment_id: str, db=Depends(get_required_db)):
     equipment = _apply_media_url(equipment)
     await cache_service.cache_equipment(equipment_id, equipment, expire=1800)
     return equipment
+
+
+@router.put("/{equipment_id}")
+async def update_equipment(
+    equipment_id: str,
+    payload: UpdateEquipmentRequest,
+    current_user: dict = Depends(get_current_user),
+    db=Depends(get_required_db),
+):
+    role = current_user.get("role")
+    if role not in {"equipment_owner", "admin"}:
+        raise APIException("Owner access required", status.HTTP_403_FORBIDDEN)
+
+    repo = EquipmentRepository(db)
+    equipment = await repo.get_by_id(equipment_id)
+    if not equipment:
+        raise APIException("Equipment not found", status.HTTP_404_NOT_FOUND)
+    if role == "equipment_owner" and equipment.get("owner_id") != current_user.get("sub"):
+        raise APIException("You can only edit your own equipment", status.HTTP_403_FORBIDDEN)
+
+    update_data = payload.model_dump(exclude_none=True)
+    if not update_data:
+        raise APIException("No fields to update", status.HTTP_400_BAD_REQUEST)
+
+    # Handle image asset if provided
+    if payload.image_asset_id:
+        media_asset = await _ensure_equipment_media_asset(payload.image_asset_id, current_user, db)
+        update_data["image_asset_id"] = payload.image_asset_id
+        update_data["image_url"] = public_media_url(payload.image_asset_id)
+
+    update_data["updated_at"] = _now_iso()
+    await repo.update(equipment_id, update_data)
+
+    # Invalidate cache
+    await cache_service.invalidate_equipment(equipment_id)
+    await cache_service.invalidate_equipment_list()
+
+    result = await repo.get_by_id(equipment_id)
+    return _apply_media_url(result)
 
 
 @router.delete("/{equipment_id}")

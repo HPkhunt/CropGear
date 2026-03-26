@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Tractor, Search, Droplets, Sprout, Wheat, FlaskConical, SearchX, DollarSign, ShieldCheck, CheckCircle, ChevronLeft, ChevronRight, RefreshCw, Star, BookmarkCheck } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { equipmentService } from '../../services/equipmentService.js'
 import { resetApiBase } from '../../services/api.js'
@@ -10,13 +11,13 @@ import SmartImage from '../../components/SmartImage.jsx'
 import { clearFavoriteEquipment, getFavoriteEquipmentIds } from '../../utils/favorites.js'
 
 const CATEGORY_OPTIONS = [
-  { value: 'all', label: 'All Categories', emoji: '🚜' },
-  { value: 'tractor', label: 'Tractors', emoji: '🚜' },
-  { value: 'harvester', label: 'Harvesters', emoji: '🌾' },
-  { value: 'seeder', label: 'Sowing / Seeders', emoji: '🌱' },
-  { value: 'tillage', label: 'Tillage', emoji: '🚜' },
-  { value: 'irrigation', label: 'Irrigation', emoji: '💧' },
-  { value: 'crop_care', label: 'Crop Care', emoji: '🧪' }
+  { value: 'all', label: 'All Categories', Icon: Tractor },
+  { value: 'tractor', label: 'Tractors', Icon: Tractor },
+  { value: 'harvester', label: 'Harvesters', Icon: Wheat },
+  { value: 'seeder', label: 'Sowing / Seeders', Icon: Sprout },
+  { value: 'tillage', label: 'Tillage', Icon: Tractor },
+  { value: 'irrigation', label: 'Irrigation', Icon: Droplets },
+  { value: 'crop_care', label: 'Crop Care', Icon: FlaskConical }
 ]
 
 const browseTips = [
@@ -167,8 +168,8 @@ export default function BrowseEquipment() {
           }
         />
 
-        <section className="page-split">
-          <div className="page-main">
+        <section>
+          <div>
             <section className="card filter-command-hub">
               <header className="hub-header">
                 <div>
@@ -177,10 +178,10 @@ export default function BrowseEquipment() {
                 </div>
                 <div className="hub-actions">
                   <button type="button" className={`button sm pill ${favoritesOnly ? 'accent' : 'outline'}`} onClick={() => setFavoritesOnly((v) => !v)}>
-                    {favoritesOnly ? '★ Showing Saved' : '☆ Show Saved'}
+                    {favoritesOnly ? <><BookmarkCheck size={14} /> Showing Saved</> : <><Star size={14} /> Show Saved</>}
                   </button>
                   <button type="button" className="button sm pill secondary" onClick={() => fetchData(true)} disabled={refreshing}>
-                    {refreshing ? 'Refreshing...' : '↻ Refresh'}
+                    {refreshing ? 'Refreshing...' : <><RefreshCw size={14} /> Refresh</>}
                   </button>
                 </div>
               </header>
@@ -196,14 +197,14 @@ export default function BrowseEquipment() {
                       setCategory(option.value)
                     }}
                   >
-                    <span className="cat-emoji">{option.emoji}</span> {option.label}
+                    <span className="cat-emoji"><option.Icon size={16} /></span> {option.label}
                   </button>
                 ))}
               </div>
 
               <div className="search-bar-premium">
                 <div className="search-input-group">
-                  <span className="search-icon">🔍</span>
+                  <span className="search-icon"><Search size={16} /></span>
                   <input
                     value={q}
                     onChange={(e) => { setPage(1); setQ(e.target.value) }}
@@ -302,7 +303,7 @@ export default function BrowseEquipment() {
                     disabled={page <= 1}
                     onClick={() => { setPage((p) => Math.max(p - 1, 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   >
-                    ← Previous
+                    <ChevronLeft size={16} /> Previous
                   </button>
                   <button
                     type="button"
@@ -310,7 +311,7 @@ export default function BrowseEquipment() {
                     disabled={page >= totalPages}
                     onClick={() => { setPage((p) => Math.min(p + 1, totalPages)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   >
-                    Next →
+                    Next <ChevronRight size={16} />
                   </button>
                 </div>
               </div>
@@ -336,7 +337,7 @@ export default function BrowseEquipment() {
 
             {!visible.length && (
               <section className="card empty-search-state">
-                <div className="empty-icon">🏜️</div>
+                <div className="empty-icon"><SearchX size={48} /></div>
                 <h3>No machines found</h3>
                 <p className="subtitle">We couldn't find any equipment matching your current filters. Try broadening your search or resetting categories.</p>
                 <button
@@ -356,66 +357,6 @@ export default function BrowseEquipment() {
               </section>
             )}
           </div>
-
-          <aside className="page-side">
-            <section className="card">
-              <h3>Market Snapshot</h3>
-              <div className="panel-list-premium">
-                <div className="insight-stat-row">
-                  <div className="stat-icon-wrap">🚜</div>
-                  <div className="stat-info-wrap">
-                    <strong>{total}</strong>
-                    <span>Total Listings</span>
-                  </div>
-                </div>
-                <div className="insight-stat-row">
-                  <div className="stat-icon-wrap">💰</div>
-                  <div className="stat-info-wrap">
-                    <strong>${averageRate}</strong>
-                    <span>Avg Daily Rate</span>
-                  </div>
-                </div>
-                <div className="insight-stat-row">
-                  <div className="stat-icon-wrap">🛡️</div>
-                  <div className="stat-info-wrap">
-                    <strong>{verifiedCount}</strong>
-                    <span>Verified Owners</span>
-                  </div>
-                </div>
-                <div className="insight-stat-row">
-                  <div className="stat-icon-wrap">✅</div>
-                  <div className="stat-info-wrap">
-                    <strong>{availableCount}</strong>
-                    <span>Available Now</span>
-                  </div>
-                </div>
-              </div>
-              <p className="panel-note">Use favorites to track shortlists across sessions.</p>
-            </section>
-
-            <section className="card">
-              <h3>Quick Actions</h3>
-              <p className="subtitle">Use smart presets to shortlist high-confidence listings.</p>
-              <div className="button-row">
-                <button type="button" className="button sm secondary" onClick={() => { setPage(1); setVerifiedOnly(true); setSort('rating') }}>
-                  Trusted Top Rated
-                </button>
-                <button type="button" className="button sm outline" onClick={() => { setPage(1); setAvailableOnly(true); setSort('price_low') }}>
-                  Available Budget First
-                </button>
-                <Link to="/farmer/bookings" className="button sm outline">Open My Bookings</Link>
-              </div>
-            </section>
-
-            <section className="card">
-              <h3>Decision Tips</h3>
-              <ul className="feature-list">
-                {browseTips.map((tip) => (
-                  <li key={tip}><span>{tip}</span></li>
-                ))}
-              </ul>
-            </section>
-          </aside>
         </section>
       </DashboardShell>
     </div>

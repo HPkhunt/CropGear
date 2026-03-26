@@ -108,26 +108,25 @@ async def create_conversation(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/conversations")
-async def get_conversations(
-    page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
+@router.get("/conversations/{user_id}")
+async def get_user_conversations(
+    user_id: str,
     current_user: dict = Depends(get_current_user),
     messaging_service: MessagingService = Depends(get_messaging_service),
     cache_service = Depends(get_cache_service)
 ):
-    """Get all conversations for current user"""
+    """Get all conversations for a specific user"""
+    # Ensure user can only access their own conversations
+    if current_user["sub"] != user_id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
     try:
-        cache_key = f"user:conversations:{current_user['sub']}:{page}"
+        cache_key = f"user:conversations:{user_id}"
         cached = await cache_service.get(cache_key)
         if cached:
             return json.loads(cached)
         
-        result = await messaging_service.get_conversations(
-            current_user["sub"],
-            page,
-            page_size
-        )
+        result = await messaging_service.get_conversations(user_id)
         
         await cache_service.set(cache_key, json.dumps(result), expire=300)
         return result
@@ -136,30 +135,29 @@ async def get_conversations(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/conversations/{conversation_id}/messages")
-async def get_messages(
+@router.get("/messages/{conversation_id}")
+async def get_conversation_messages(
     conversation_id: str,
-    page: int = Query(1, ge=1),
-    page_size: int = Query(50, ge=1, le=100),
     current_user: dict = Depends(get_current_user),
     messaging_service: MessagingService = Depends(get_messaging_service),
     cache_service = Depends(get_cache_service)
 ):
     """Get message history for conversation"""
     try:
-        cache_key = f"conv:messages:{conversation_id}:{page}"
+        # Verify user is participant in conversation
+        conv = await messaging_service.conversations_collection.find_one({"_id": ObjectId(conversation_id)})
+        if not conv or current_user["sub"] not in conv["participants"]:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        cache_key = f"conv:messages:{conversation_id}"
         cached = await cache_service.get(cache_key)
         if cached:
             return json.loads(cached)
         
-        # Mark messages as read
+        # Mark messages as read when fetching
         await messaging_service.mark_as_read(conversation_id, current_user["sub"])
         
-        result = await messaging_service.get_messages(
-            conversation_id,
-            page,
-            page_size
-        )
+        result = await messaging_service.get_messages(conversation_id)
         
         await cache_service.set(cache_key, json.dumps(result, default=str), expire=600)
         return result
@@ -170,14 +168,24 @@ async def get_messages(
 
 @router.post("/messages")
 async def send_message(
-    conversation_id: str = Query(...),
-    content: str = Body(...),
-    message_type: str = Query("text"),
+    message_data: dict = Body(...),
     current_user: dict = Depends(get_current_user),
     messaging_service: MessagingService = Depends(get_messaging_service)
 ):
     """Send a message"""
     try:
+        conversation_id = message_data.get("conversation_id")
+        content = message_data.get("content", "")
+        message_type = message_data.get("message_type", "text")
+        
+        if not conversation_id or not content:
+            raise HTTPException(status_code=400, detail="conversation_id and content are required")
+        
+        # Verify user is participant in conversation
+        conv = await messaging_service.conversations_collection.find_one({"_id": ObjectId(conversation_id)})
+        if not conv or current_user["sub"] not in conv["participants"]:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
         message = await messaging_service.send_message(
             conversation_id,
             current_user["sub"],
@@ -195,8 +203,31 @@ async def send_message(
         )
         
         return message
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error sending message: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/messages/seen")
+async def mark_messages_seen(
+    conversation_id: str = Query(...),
+    current_user: dict = Depends(get_current_user),
+    messaging_service: MessagingService = Depends(get_messaging_service)
+):
+    """Mark messages as seen in a conversation"""
+    try:
+        # Verify user is participant in conversation
+        conv = await messaging_service.conversations_collection.find_one({"_id": ObjectId(conversation_id)})
+        if not conv or current_user["sub"] not in conv["participants"]:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        count = await messaging_service.mark_as_read(conversation_id, current_user["sub"])
+        
+        return {"status": "seen", "messages_marked": count}
+    except Exception as e:
+        logger.error(f"Error marking messages as seen: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

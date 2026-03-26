@@ -1,0 +1,236 @@
+/* Message Floating Action Button */
+.message-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  transform: scale(1);
+  animation: fabEntrance 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.message-fab:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4), 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 20px rgba(37, 99, 235, 0.2);
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 50%, #1e3a8a 100%);
+}
+
+.message-fab:active {
+  transform: scale(0.95);
+}
+
+.message-fab:focus {
+  outline: none;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3), 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+/* FAB Icon */
+.fab-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 24px;
+  line-height: 1;
+  animation: fabBounce 2s infinite;
+}
+
+@keyframes fabEntrance {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(-90deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes fabBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-2px);
+  }
+  60% {
+    transform: translateY(-1px);
+  }
+}
+
+/* Unread Badge */
+.fab-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ef4444;
+  color: white;
+  border-radius: 12px;
+  min-width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 2px solid white;
+  animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Pulse Animation */
+.fab-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.3);
+  transform: translate(-50%, -50%) scale(0);
+  animation: fabPulse 3s infinite;
+  pointer-events: none;
+}
+
+/* Tooltip */
+.fab-tooltip {
+  position: absolute;
+  bottom: 100%;
+  right: 50%;
+  transform: translateX(50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  margin-bottom: 8px;
+  pointer-events: none;
+  z-index: 1001;
+}
+
+.fab-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.8);
+}
+
+.message-fab:hover .fab-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(50%) translateY(-4px);
+}
+
+@keyframes fabPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .message-fab {
+    bottom: 16px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .fab-icon {
+    font-size: 20px;
+  }
+
+  .fab-badge {
+    top: -6px;
+    right: -6px;
+    min-width: 20px;
+    height: 20px;
+    font-size: 10px;
+    padding: 0 4px;
+  }
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .message-fab {
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+[data-theme="dark"] .message-fab:hover {
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+}
+
+[data-theme="dark"] .fab-pulse {
+  background: rgba(37, 99, 235, 0.4);
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .fab-icon,
+  .fab-badge,
+  .fab-pulse {
+    animation: none;
+  }
+
+  .message-fab {
+    transition: all 0.2s ease;
+  }
+
+  .message-fab:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .message-fab {
+    background: #000;
+    border: 2px solid #fff;
+  }
+
+  .fab-badge {
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+  }
+}

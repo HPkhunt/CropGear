@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { AlertCircle } from 'lucide-react'
 
 export function TextField({ 
   label, 
@@ -67,7 +68,7 @@ export function TextField({
       </div>
       {error && (
         <p style={{ color: '#ef4444', fontSize: 13, margin: '8px 0 0 0' }}>
-          ❌ {error}
+          <AlertCircle size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> {error}
         </p>
       )}
     </div>
@@ -140,7 +141,7 @@ export function TextArea({
       />
       {error && (
         <p style={{ color: '#ef4444', fontSize: 13, margin: '8px 0 0 0' }}>
-          ❌ {error}
+          <AlertCircle size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> {error}
         </p>
       )}
     </div>
@@ -209,7 +210,7 @@ export function Select({
       </select>
       {error && (
         <p style={{ color: '#ef4444', fontSize: 13, margin: '8px 0 0 0' }}>
-          ❌ {error}
+          <AlertCircle size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> {error}
         </p>
       )}
     </div>

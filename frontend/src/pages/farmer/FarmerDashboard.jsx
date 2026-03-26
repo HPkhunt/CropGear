@@ -7,6 +7,7 @@ import PageHero from '../../components/PageHero.jsx'
 import { getFavoriteEquipmentIds } from '../../utils/favorites.js'
 import SmartImage from '../../components/SmartImage.jsx'
 import DashboardShell from '../../components/DashboardShell.jsx'
+import ChatList from '../../components/ChatList.jsx'
 
 export default function FarmerDashboard() {
   const [featured, setFeatured] = useState([])
@@ -186,6 +187,7 @@ export default function FarmerDashboard() {
           ))}
         </section>
       </DashboardShell>
+      <ChatList />
     </div>
   )
 }

@@ -3,6 +3,9 @@ import { BrowserRouter, useLocation } from 'react-router-dom'
 import AppRoutes from './routes/AppRoutes.jsx'
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
+import MessageFAB from './components/MessageFAB.jsx'
+import Breadcrumbs from './components/Breadcrumbs.jsx'
+import { AlertTriangle, X } from 'lucide-react'
 import AuthProvider from './context/AuthContext.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import { ToastProvider } from './context/ToastContext.jsx'
@@ -48,15 +51,19 @@ function AppShell() {
     <div id="top" className={`app-shell ${routeTheme}`}>
       {apiError && (
         <div className="global-error-banner" style={{ background: '#ef4444', color: 'white', textAlign: 'center', padding: '10px', fontSize: '14px', zIndex: 9999, position: 'relative' }}>
-          <strong>⚠️ {apiError}</strong>
-          <button onClick={() => setApiError(null)} style={{ background: 'none', border: 'none', color: 'white', marginLeft: '15px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+          <strong><AlertTriangle size={16} style={{ verticalAlign: 'middle', marginRight: 6 }} /> {apiError}</strong>
+          <button onClick={() => setApiError(null)} style={{ background: 'none', border: 'none', color: 'white', marginLeft: '15px', cursor: 'pointer', fontWeight: 'bold' }}><X size={16} /></button>
         </div>
       )}
       <Navbar />
+      <div className="container">
+        <Breadcrumbs />
+      </div>
       <main className="app-content">
         <AppRoutes />
       </main>
       <Footer />
+      <MessageFAB />
     </div>
   )
 }

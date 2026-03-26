@@ -166,7 +166,13 @@ class CacheService:
 
     # ===== Basic Operations =====
     async def get(self, key: str) -> Optional[Any]:
-        return _store.get(key)
+        val = _store.get(key)
+        if isinstance(val, str):
+            try:
+                val = json.loads(val)
+            except Exception:
+                pass
+        return val
 
     async def set(self, key: str, value: Any, expire: int = 3600) -> bool:
         try:
@@ -191,7 +197,14 @@ class CacheService:
     async def mget(self, keys: List[str]) -> dict:
         if not keys:
             return {}
-        return _store.mget(keys)
+        res = _store.mget(keys)
+        for k, v in res.items():
+            if isinstance(v, str):
+                try:
+                    res[k] = json.loads(v)
+                except Exception:
+                    pass
+        return res
 
     async def mset(self, data: dict, expire: int = 3600) -> bool:
         if not data:

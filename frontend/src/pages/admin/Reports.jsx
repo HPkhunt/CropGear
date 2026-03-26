@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react'
+import { BarChart3, TrendingUp, ArrowUpCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import PageHero from '../../components/PageHero.jsx'
 import { adminService } from '../../services/adminService.js'
@@ -147,21 +148,21 @@ export default function Reports() {
               <h3>Report Insights</h3>
               <div className="panel-list-premium">
                 <div className="insight-stat-row">
-                  <div className="stat-icon-wrap">📊</div>
+                  <div className="stat-icon-wrap"><BarChart3 size={18} /></div>
                   <div className="stat-info-wrap">
                     <strong>{totalBookings}</strong>
                     <span>Total bookings</span>
                   </div>
                 </div>
                 <div className="insight-stat-row">
-                  <div className="stat-icon-wrap">📈</div>
+                  <div className="stat-icon-wrap"><TrendingUp size={18} /></div>
                   <div className="stat-info-wrap">
                     <strong>{avgBookings}</strong>
                     <span>Average per day</span>
                   </div>
                 </div>
                 <div className="insight-stat-row">
-                  <div className="stat-icon-wrap">🔝</div>
+                  <div className="stat-icon-wrap"><ArrowUpCircle size={18} /></div>
                   <div className="stat-info-wrap">
                     <strong>{peakBookings}</strong>
                     <span>Peak day volume</span>

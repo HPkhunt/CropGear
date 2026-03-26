@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Modal from './Modal.jsx'
+import NotificationBell from './NotificationBell.jsx'
+import UserAvatar from './UserAvatar.jsx'
+import { Sun, Moon, LogOut, Search } from 'lucide-react'
 import useAuth from '../hooks/useAuth.js'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { useToast } from '../context/ToastContext.jsx'
@@ -112,7 +115,7 @@ export default function Navbar() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search tractors, harvesters, seeders..."
             />
-            <button type="submit" className="button sm accent">Search</button>
+            <button type="submit" className="button sm accent"><Search size={16} /></button>
           </form>
         )}
 
@@ -143,28 +146,42 @@ export default function Navbar() {
             aria-label="Toggle Theme"
             style={{ padding: '6px 10px', fontSize: '1rem', marginRight: '4px' }}
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
           {isAuthenticated ? (
-            <div className="profile-wrap" ref={profileRef}>
-              <button
-                type="button"
-                className="button outline pill sm profile-trigger"
-                onClick={() => setProfileOpen((v) => !v)}
-                aria-haspopup="menu"
-                aria-expanded={profileOpen}
-              >
-                Profile
-              </button>
-              {profileOpen && (
-                <div className="profile-menu" role="menu">
-                  <p className="profile-name">{user?.full_name || 'User'}</p>
-                  <p className="profile-role">{(user?.role || 'member').replace('_', ' ')}</p>
-                  <Link to={dashboardPath} onClick={() => { setProfileOpen(false); setIsOpen(false) }}>Open Dashboard</Link>
-                  <button type="button" onClick={handleLogoutClick}>Logout</button>
-                </div>
-              )}
-            </div>
+            <>
+              <NotificationBell />
+              <div className="profile-wrap" ref={profileRef}>
+                <button
+                  type="button"
+                  className="profile-trigger-avatar"
+                  onClick={() => setProfileOpen((v) => !v)}
+                  aria-haspopup="menu"
+                  aria-expanded={profileOpen}
+                >
+                  <UserAvatar name={user?.full_name} size={32} />
+                </button>
+                {profileOpen && (
+                  <div className="profile-menu" role="menu">
+                    <div className="profile-menu-header">
+                      <UserAvatar name={user?.full_name} size={40} />
+                      <div>
+                        <p className="profile-name">{user?.full_name || 'User'}</p>
+                        <p className="profile-role">{(user?.role || 'member').replace('_', ' ')}</p>
+                      </div>
+                    </div>
+                    <div className="profile-menu-links">
+                      <Link to={dashboardPath} onClick={() => { setProfileOpen(false); setIsOpen(false) }}>Dashboard</Link>
+                      <Link to="/farmer/bookings" onClick={() => { setProfileOpen(false); setIsOpen(false) }}>My Bookings</Link>
+                      <Link to="/messages" onClick={() => { setProfileOpen(false); setIsOpen(false) }}>Messages</Link>
+                    </div>
+                    <div className="profile-menu-footer">
+                      <button type="button" onClick={handleLogoutClick}>Logout</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
           ) : !isAuthPage && (
             <>
               <Link to="/auth/login" className="button pill sm gradient" onClick={() => setIsOpen(false)}>Login</Link>
@@ -187,7 +204,7 @@ export default function Navbar() {
       >
         <div className="logout-confirm-content">
           <div className="logout-icon-wrapper">
-            🚪
+            <LogOut size={28} />
           </div>
           <h4 className="logout-confirm-title">Are you sure?</h4>
           <p className="logout-confirm-text">You will need to login again to access your account.</p>

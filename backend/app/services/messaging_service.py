@@ -35,10 +35,9 @@ class MessagingService:
         # Create new conversation
         conversation = {
             "participants": [participant_1, participant_2],
-            "created_at": datetime.now(timezone.utc),
-            "last_message_at": None,
-            "archived_by": [],
-            "muted_by": []
+            "last_message": initial_message if initial_message else None,
+            "updated_at": datetime.now(timezone.utc),
+            "created_at": datetime.now(timezone.utc)
         }
         
         result = await self.conversations_collection.insert_one(conversation)
@@ -72,29 +71,35 @@ class MessagingService:
         message = {
             "conversation_id": ObjectId(conversation_id),
             "sender_id": sender_id,
-            "content": content,
+            "recipient_id": [p for p in conv["participants"] if p != sender_id][0],
+            "message": content,
+            "timestamp": datetime.now(timezone.utc),
+            "status": "sent",
             "message_type": message_type,
             "attachment_url": attachment_url,
-            "is_read": False,
-            "read_at": None,
-            "created_at": datetime.now(timezone.utc),
-            "edited": False,
-            "edited_at": None,
-            "reactions": []  # emoji reactions
+            "reactions": []
         }
         
         result = await self.messages_collection.insert_one(message)
         
-        # Update conversation's last message timestamp
+        # Update conversation's last message
         await self.conversations_collection.update_one(
             {"_id": ObjectId(conversation_id)},
-            {"$set": {"last_message_at": datetime.now(timezone.utc)}}
+            {"$set": {
+                "last_message": content,
+                "updated_at": datetime.now(timezone.utc)
+            }}
         )
         
         return {
             "id": str(result.inserted_id),
-            **message,
-            "conversation_id": conversation_id
+            "sender_id": sender_id,
+            "recipient_id": message["recipient_id"],
+            "message": content,
+            "timestamp": message["timestamp"],
+            "status": "sent",
+            "message_type": message_type,
+            "attachment_url": attachment_url
         }
     
     async def get_messages(self, conversation_id: str, page: int = 1, page_size: int = 50) -> Dict:
@@ -145,18 +150,18 @@ class MessagingService:
                 sort=[("created_at", -1)]
             )
             
-            # Count unread messages
+            # Count unread messages (messages where status is not 'seen' and recipient is current user)
             unread = await self.messages_collection.count_documents({
                 "conversation_id": conv["_id"],
-                "sender_id": {"$ne": user_id},
-                "is_read": False
+                "recipient_id": user_id,
+                "status": {"$ne": "seen"}
             })
             
             formatted_convs.append({
                 "id": str(conv["_id"]),
                 "participants": conv["participants"],
-                "last_message": self._format_message(last_msg) if last_msg else None,
-                "last_message_at": conv.get("last_message_at"),
+                "last_message": conv.get("last_message"),
+                "updated_at": conv.get("updated_at"),
                 "unread_count": unread,
                 "created_at": conv["created_at"]
             })
@@ -172,17 +177,16 @@ class MessagingService:
         }
     
     async def mark_as_read(self, conversation_id: str, user_id: str) -> int:
-        """Mark all messages in conversation as read by user"""
+        """Mark all messages in conversation as seen by user"""
         result = await self.messages_collection.update_many(
             {
                 "conversation_id": ObjectId(conversation_id),
-                "sender_id": {"$ne": user_id},
-                "is_read": False
+                "recipient_id": user_id,
+                "status": {"$ne": "seen"}
             },
             {
                 "$set": {
-                    "is_read": True,
-                    "read_at": datetime.now(timezone.utc)
+                    "status": "seen"
                 }
             }
         )
@@ -358,34 +362,20 @@ class MessagingService:
         """Format message for API response"""
         if not msg:
             return None
-        
-        # Serialize reactions to avoid ObjectId in output
-        raw_reactions = msg.get("reactions", [])
-        reactions = []
-        for r in raw_reactions:
-            reactions.append({
-                "emoji": r.get("emoji"),
-                "user_id": r.get("user_id"),
-                "added_at": r["added_at"].isoformat() if isinstance(r.get("added_at"), datetime) else r.get("added_at"),
-            })
 
-        created_at = msg.get("created_at")
-        if isinstance(created_at, datetime):
-            created_at = created_at.isoformat()
+        timestamp = msg.get("timestamp") or msg.get("created_at")
+        if isinstance(timestamp, datetime):
+            timestamp = timestamp.isoformat()
 
         return {
             "id": str(msg["_id"]),
             "sender_id": msg["sender_id"],
-            "conversation_id": str(msg["conversation_id"]),
-            "content": msg.get("content", ""),
+            "recipient_id": msg.get("recipient_id"),
+            "message": msg.get("message", msg.get("content", "")),
+            "timestamp": timestamp,
+            "status": msg.get("status", "sent"),
             "message_type": msg.get("message_type", "text"),
-            "attachment_url": msg.get("attachment_url"),
-            "is_read": msg.get("is_read", False),
-            "read_at": msg["read_at"].isoformat() if isinstance(msg.get("read_at"), datetime) else msg.get("read_at"),
-            "created_at": created_at,
-            "edited": msg.get("edited", False),
-            "edited_at": msg["edited_at"].isoformat() if isinstance(msg.get("edited_at"), datetime) else msg.get("edited_at"),
-            "reactions": reactions,
+            "attachment_url": msg.get("attachment_url")
         }
 
 

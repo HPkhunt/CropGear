@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { getEquipmentImage } from '../utils/equipmentImages.js';
+import { StarRatingDisplay } from './StarRating.jsx';
+import { MapPin, Edit } from 'lucide-react';
 import FavoriteButton from './FavoriteButton.jsx';
 import SmartImage from './SmartImage.jsx';
 import useAuth from '../hooks/useAuth.js';
@@ -37,8 +39,7 @@ export default function EquipmentCard({ equipment, onFavoriteChange }) {
         )}
 
         <div className="card-rating-float">
-          <span className="star-icon" style={{ color: 'var(--accent)' }}>★</span>
-          <span>{rating}</span>
+          <StarRatingDisplay rating={rating} size={14} showValue={true} reviewCount={reviewCount} />
         </div>
 
         <FavoriteButton equipmentId={equipment.id} onFavoriteChange={onFavoriteChange} />
@@ -57,7 +58,7 @@ export default function EquipmentCard({ equipment, onFavoriteChange }) {
 
         <h3>{equipment.name || 'Equipment'}</h3>
         <p className="subtitle">
-          <span>📍</span> {equipment.location || 'Location not specified'}
+          <MapPin size={14} className="location-icon" /> {equipment.location || 'Location not specified'}
         </p>
 
         <div className="equipment-meta-premium">
@@ -71,11 +72,16 @@ export default function EquipmentCard({ equipment, onFavoriteChange }) {
           </div>
         </div>
 
-        <div className="equipment-footer">
-          <div className="equipment-price">
+        <div className="equipment-footer" style={{ gap: '8px', flexWrap: 'wrap' }}>
+          <div className="equipment-price" style={{ marginRight: 'auto' }}>
             <strong>${Number(rate).toLocaleString()}</strong>
             <span>/day</span>
           </div>
+          {user?.role === 'equipment_owner' && String(user?.id) === String(equipment.owner_id) && (
+            <Link to={`/owner/equipment/${equipment.id}/edit`} className="button sm outline pill">
+              <Edit size={14} /> Edit
+            </Link>
+          )}
           <Link to={detailsPath} className="button sm gradient pill">
             Details
           </Link>

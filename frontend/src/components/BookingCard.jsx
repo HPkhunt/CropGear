@@ -1,35 +1,56 @@
 import React, { useState } from 'react'
-import { paymentService } from '../services/paymentService.js'
+import { useNavigate } from 'react-router-dom'
 import { useToast } from '../context/ToastContext.jsx'
 import useAuth from '../hooks/useAuth.js'
+import { bookingService } from '../services/bookingService.js'
+import { CreditCard, XCircle, CheckCircle, Star } from 'lucide-react'
 
-export default function BookingCard({ booking }) {
+export default function BookingCard({ booking, onStatusChange }) {
   const { user } = useAuth()
   const { addToast } = useToast()
-  const [paying, setPaying] = useState(false)
-  
-  const status = (booking.booking_status || 'pending').toLowerCase()
-  const statusClass = status === 'confirmed' ? 'status-success' : status === 'rejected' || status === 'cancelled' ? 'status-error' : 'status-pending'
+  const navigate = useNavigate()
+  const [acting, setActing] = useState(false)
+
+  const [localStatus, setLocalStatus] = useState(booking.booking_status || 'pending')
+  const status = localStatus.toLowerCase()
+  const statusClass = status === 'confirmed' ? 'status-success' : status === 'rejected' || status === 'cancelled' ? 'status-error' : status === 'completed' ? 'status-info' : 'status-pending'
 
   const startDate = booking.start_date ? new Date(booking.start_date).toLocaleDateString() : 'TBD'
   const endDate = booking.end_date ? new Date(booking.end_date).toLocaleDateString() : 'TBD'
 
-  const handlePayment = async () => {
-    if (!user?.email) {
-      addToast('Email address required for payment', 'error')
-      return
-    }
+  const role = user?.role
 
-    setPaying(true)
+  const handlePayment = () => {
+    navigate(`/checkout/${booking.id}`)
+  }
+
+  const handleCancel = async () => {
+    setActing(true)
     try {
-      const intent = await paymentService.createIntent(booking.id, booking.total_amount, user.email)
-      // In a real app, this would redirect to Stripe or another payment processor
-      // For demo purposes, we'll simulate a successful payment
-      addToast(`Payment of $${booking.total_amount} processed successfully!`, 'success')
-    } catch (error) {
-      addToast('Payment failed. Please try again.', 'error')
+      await bookingService.cancel(booking.id)
+      setLocalStatus('cancelled')
+      addToast('Booking cancelled successfully.', 'success')
+      if (onStatusChange) onStatusChange(booking.id, 'cancelled')
+    } catch (err) {
+      const msg = err?.response?.data?.detail || 'Failed to cancel booking.'
+      addToast(msg, 'error')
     } finally {
-      setPaying(false)
+      setActing(false)
+    }
+  }
+
+  const handleComplete = async () => {
+    setActing(true)
+    try {
+      await bookingService.complete(booking.id)
+      setLocalStatus('completed')
+      addToast('Booking marked as completed!', 'success')
+      if (onStatusChange) onStatusChange(booking.id, 'completed')
+    } catch (err) {
+      const msg = err?.response?.data?.detail || 'Failed to complete booking.'
+      addToast(msg, 'error')
+    } finally {
+      setActing(false)
     }
   }
 
@@ -54,17 +75,50 @@ export default function BookingCard({ booking }) {
       </div>
 
       <div className="booking-total">${Number(booking.total_amount || 0).toLocaleString()}</div>
-      
-      {status === 'confirmed' && (
-        <button 
-          className="button sm gradient" 
-          onClick={handlePayment}
-          disabled={paying}
-          style={{ marginTop: '12px', width: '100%' }}
-        >
-          {paying ? 'Processing...' : `Pay $${Number(booking.total_amount || 0).toLocaleString()}`}
-        </button>
-      )}
+
+      <div style={{ display: 'flex', gap: '8px', marginTop: '16px', flexWrap: 'wrap' }}>
+        {status === 'confirmed' && (
+          <button
+            className="button sm gradient"
+            onClick={handlePayment}
+            style={{ flex: 1, justifyContent: 'center' }}
+          >
+            <CreditCard size={14} /> Pay ${Number(booking.total_amount || 0).toLocaleString()}
+          </button>
+        )}
+
+        {status === 'confirmed' && role !== 'farmer' && (
+          <button
+            className="button sm accent"
+            onClick={handleComplete}
+            disabled={acting}
+            style={{ flex: 1, justifyContent: 'center' }}
+          >
+            <CheckCircle size={14} /> Complete
+          </button>
+        )}
+
+        {(status === 'pending' || status === 'confirmed') && (
+          <button
+            className="button sm outline"
+            onClick={handleCancel}
+            disabled={acting}
+            style={{ flex: 1, justifyContent: 'center', color: 'var(--error, #ef4444)', borderColor: 'var(--error, #ef4444)' }}
+          >
+            <XCircle size={14} /> Cancel
+          </button>
+        )}
+
+        {status === 'completed' && (
+          <button
+            className="button sm secondary"
+            onClick={() => navigate(`/review/${booking.id}`)}
+            style={{ flex: 1, justifyContent: 'center' }}
+          >
+            <Star size={14} /> Write Review
+          </button>
+        )}
+      </div>
     </article>
   )
 }

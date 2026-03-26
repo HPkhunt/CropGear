@@ -7,12 +7,10 @@ from datetime import datetime
 class EquipmentCategory(str, Enum):
     TRACTOR = "tractor"
     HARVESTER = "harvester"
-    THRESHER = "thresher"
-    PLOUGH = "plough"
-    SPRAYER = "sprayer"
-    PUMP = "pump"
-    GENERATOR = "generator"
-    TRAILER = "trailer"
+    SEEDER = "seeder"
+    TILLAGE = "tillage"
+    IRRIGATION = "irrigation"
+    CROP_CARE = "crop_care"
 
 
 class Equipment(BaseModel):

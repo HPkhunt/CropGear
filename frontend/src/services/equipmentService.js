@@ -40,6 +40,12 @@ export const equipmentService = {
     const { data } = await client.post('/equipment', body)
     return data
   },
+  async update(id, payload) {
+    const body = { ...payload }
+    if (body.daily_rate !== undefined) body.daily_rate = Number(body.daily_rate)
+    const { data } = await client.put(`/equipment/${id}`, body)
+    return data
+  },
   async uploadImage(file) {
     return mediaService.uploadEquipmentImage(file)
   },

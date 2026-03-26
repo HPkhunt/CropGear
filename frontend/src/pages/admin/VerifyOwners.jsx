@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { Clock, CheckCircle, XCircle } from 'lucide-react'
 import PageHero from '../../components/PageHero.jsx'
 import { adminService } from '../../services/adminService.js'
 import Loader from '../../components/Loader.jsx'
@@ -183,21 +184,21 @@ export default function VerifyOwners() {
             <h3>Queue Summary</h3>
             <div className="panel-list-premium">
               <div className="insight-stat-row">
-                <div className="stat-icon-wrap">⏳</div>
+                <div className="stat-icon-wrap"><Clock size={18} /></div>
                 <div className="stat-info-wrap">
                   <strong>{statusCounts.pending}</strong>
                   <span>Pending approvals</span>
                 </div>
               </div>
               <div className="insight-stat-row">
-                <div className="stat-icon-wrap">✅</div>
+                <div className="stat-icon-wrap"><CheckCircle size={18} /></div>
                 <div className="stat-info-wrap">
                   <strong>{statusCounts.approved}</strong>
                   <span>Approved users</span>
                 </div>
               </div>
               <div className="insight-stat-row">
-                <div className="stat-icon-wrap">❌</div>
+                <div className="stat-icon-wrap"><XCircle size={18} /></div>
                 <div className="stat-info-wrap">
                   <strong>{statusCounts.rejected}</strong>
                   <span>Rejected users</span>

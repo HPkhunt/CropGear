@@ -4,6 +4,7 @@ import { equipmentService } from '../services/equipmentService';
 import { miscService } from '../services/miscService';
 import { getEquipmentImage } from '../utils/equipmentImages.js';
 import { getErrorMessage, isRequestCanceled } from '../utils/helpers.js';
+import { Sparkles, Tractor, Users, TrendingUp, MapPin, ShieldCheck, Lock, Zap, Star, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import './Home.css';
 
 import heroBanner from '../assets/images/hero_banner_1772246252951.png';
@@ -26,9 +27,9 @@ const categoriesData = [
 ];
 
 const whyItems = [
-    { title: 'Identity Verified', copy: 'Every owner on our platform goes through a rigorous vetting process to ensure equipment safety.', icon: '🛡️', image: whyVerified },
-    { title: 'Secure Escrow Payments', copy: 'Your funds are held safely and only released when you confirm satisfaction.', icon: '💳', image: whySecure },
-    { title: 'Lightning Fast Booking', copy: 'Our smart matching algorithm connects you to local machinery in minutes.', icon: '⚡', image: whyBooking },
+    { title: 'Identity Verified', copy: 'Every owner on our platform goes through a rigorous vetting process to ensure equipment safety.', Icon: ShieldCheck, image: whyVerified },
+    { title: 'Secure Escrow Payments', copy: 'Your funds are held safely and only released when you confirm satisfaction.', Icon: Lock, image: whySecure },
+    { title: 'Lightning Fast Booking', copy: 'Our smart matching algorithm connects you to local machinery in minutes.', Icon: Zap, image: whyBooking },
 ];
 
 const EMPTY_STATS = { equipments: null, owners: null, bookings: null };
@@ -245,7 +246,7 @@ const Home = () => {
                 <div className="hero-grid">
                     <div className="hero-content">
                         <div className="hero-badge premium-fade-in delay-1">
-                            ✨ Redefining AgTech
+                            <Sparkles size={16} /> Redefining AgTech
                         </div>
                         <h1 className="premium-fade-in delay-2">
                             The smartest way to <span className="gradient-text">exchange equipment.</span>
@@ -306,17 +307,17 @@ const Home = () => {
                     </div>
                 )}
                 <div className="stat-glass">
-                    <div className="icon">🚜</div>
+                    <div className="icon"><Tractor size={28} /></div>
                     <div className="number">{formatStat(stats.equipments !== null ? animatedStats.equipments : stats.equipments)}</div>
                     <div className="label">Available Machines</div>
                 </div>
                 <div className="stat-glass">
-                    <div className="icon">🤝</div>
+                    <div className="icon"><Users size={28} /></div>
                     <div className="number">{formatStat(stats.owners !== null ? animatedStats.owners : stats.owners)}</div>
                     <div className="label">Verified Lenders</div>
                 </div>
                 <div className="stat-glass">
-                    <div className="icon">📈</div>
+                    <div className="icon"><TrendingUp size={28} /></div>
                     <div className="number">{formatStat(stats.bookings !== null ? animatedStats.bookings : stats.bookings)}</div>
                     <div className="label">Successful Bookings</div>
                 </div>
@@ -355,18 +356,17 @@ const Home = () => {
                             <div className="equipment-image-container">
                                 <img src={item.image_url?.includes('picsum') ? getEquipmentImage(item) : (item.image_url || getEquipmentImage(item))} alt={item.name} />
                                 <div className="equipment-rating">
-                                    <span className="star">★</span> {Number(item.rating || 4.8).toFixed(1)}
-                                </div>
-                            </div>
+                                    <Star size={14} fill="currentColor" /> {Number(item.rating || 4.8).toFixed(1)}
+                                </div>\r\n                            </div>
                             <div className="equipment-details">
                                 <h3>{item.name}</h3>
-                                <div className="equipment-location">📍 {item.location || 'Nationwide'}</div>
+                                <div className="equipment-location"><MapPin size={14} /> {item.location || 'Nationwide'}</div>
                                 <div className="equipment-footer">
                                     <div className="equipment-price">
                                         ${item.daily_rate}<span>/day</span>
                                     </div>
                                     <Link to={`/equipment/${item.id}`} className="btn-icon">
-                                        →
+                                        <ArrowRight size={18} />
                                     </Link>
                                 </div>
                             </div>
@@ -386,7 +386,7 @@ const Home = () => {
                     {whyItems.map((item, i) => (
                         <div key={i} className="feature-glass">
                             <img src={item.image} alt={item.title} style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '16px', marginBottom: '1rem' }} />
-                            <span className="feature-icon">{item.icon}</span>
+                            <span className="feature-icon"><item.Icon size={24} /></span>
                             <h3>{item.title}</h3>
                             <p>{item.copy}</p>
                         </div>
@@ -405,8 +405,8 @@ const Home = () => {
                     ))}
 
                     <div className="testimonial-controls">
-                        <button onClick={() => setCurrentTestimonial(c => (c - 1 + testimonials.length) % testimonials.length)}>←</button>
-                        <button onClick={() => setCurrentTestimonial(c => (c + 1) % testimonials.length)}>→</button>
+                        <button onClick={() => setCurrentTestimonial(c => (c - 1 + testimonials.length) % testimonials.length)}><ChevronLeft size={20} /></button>
+                        <button onClick={() => setCurrentTestimonial(c => (c + 1) % testimonials.length)}><ChevronRight size={20} /></button>
                     </div>
                 </div>
             </section>
