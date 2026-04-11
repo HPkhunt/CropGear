@@ -1,0 +1,97 @@
+version: "3.9"
+
+x-backend-environment: &backend-environment
+  ENVIRONMENT: development
+  DEBUG: "True"
+  HOST: 0.0.0.0
+  PORT: 8000
+  APP_NAME: CropGear
+  SECRET_KEY: compose-dev-secret-key-change-this-before-production-1234
+  MONGODB_URL: mongodb://mongo:27017
+  DATABASE_NAME: cropgear_db
+  REDIS_URL: redis://redis:6379/0
+  CELERY_BROKER_URL: redis://redis:6379/1
+  CELERY_RESULT_BACKEND: redis://redis:6379/2
+  FRONTEND_BASE_URL: http://localhost:5173
+  ALLOWED_ORIGINS: '["http://localhost:5173"]'
+  ALLOWED_HOSTS: '["localhost","127.0.0.1","0.0.0.0","backend","testserver"]'
+  ENABLE_DEMO_SEED: "True"
+  STRIPE_ENABLED: ${STRIPE_ENABLED:-False}
+  STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+  STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
+  STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+  AWS_REGION: ${AWS_REGION:-us-east-1}
+  S3_BUCKET_NAME: ${S3_BUCKET_NAME:-}
+  GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+
+x-backend-service: &backend-service
+  build:
+    context: .
+    dockerfile: backend/Dockerfile
+  environment: *backend-environment
+  volumes:
+    - ./backend:/app/backend
+  depends_on:
+    mongo:
+      condition: service_started
+    redis:
+      condition: service_started
+
+services:
+  mongo:
+    image: mongo:6
+    container_name: cropgear-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: cropgear-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  backend:
+    <<: *backend-service
+    container_name: cropgear-backend
+    command: python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  worker:
+    <<: *backend-service
+    container_name: cropgear-worker
+    command: celery -A app.core.celery_app.celery_app worker --loglevel=info
+    restart: unless-stopped
+
+  frontend:
+    image: node:20-bookworm-slim
+    container_name: cropgear-frontend
+    profiles: ["frontend"]
+    working_dir: /app/frontend
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    environment:
+      VITE_DEV_API_TARGET: http://backend:8000
+      VITE_DEV_PORT: 5173
+    volumes:
+      - ./frontend:/app/frontend
+      - frontend_node_modules:/app/frontend/node_modules
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "5173:5173"
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+  redis_data:
+  frontend_node_modules:

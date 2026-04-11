@@ -1,0 +1,18 @@
+{
+  "name": "cropgear-workspace",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:backend": "python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload --app-dir backend",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "docs:check": "node scripts/check-docs.mjs",
+    "lint": "npm run lint:frontend && npm run lint:backend && npm run typecheck:backend",
+    "lint:frontend": "npm --prefix frontend run lint",
+    "lint:backend": "python -m flake8 --config backend/.flake8 backend/app backend/tests",
+    "format": "npm run format:backend",
+    "format:check": "npm run format:backend:check",
+    "format:backend": "python -m isort backend/app backend/tests && python -m black backend/app backend/tests",
+    "format:backend:check": "python -m isort --check-only backend/app backend/tests && python -m black --check backend/app backend/tests",
+    "typecheck:backend": "python -m mypy --config-file backend/pyproject.toml backend/app/config.py backend/app/core/password_policy.py backend/app/core/exceptions.py"
+  }
+}

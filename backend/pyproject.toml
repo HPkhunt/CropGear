@@ -1,0 +1,28 @@
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+extend-exclude = """
+/(
+  \\.venv
+  | __pycache__
+  | \\.pytest_cache
+  | \\.mypy_cache
+)/
+"""
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+follow_imports = "silent"
+allow_untyped_globals = true
+implicit_optional = true
+warn_unused_configs = true
+files = [
+  "app/config.py",
+  "app/core/password_policy.py",
+  "app/core/exceptions.py",
+]

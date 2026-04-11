@@ -1,0 +1,77 @@
+const cropGearTheme = {
+  primary: {
+    50: '#f3fbf5',
+    100: '#e2f5e7',
+    200: '#c4eacb',
+    300: '#99dab0',
+    400: '#68c88f',
+    500: '#44b272',
+    600: '#16a34a',
+    700: '#15803d',
+    800: '#065f46',
+    900: '#1d4831',
+    950: '#0d2719',
+  },
+  accent: {
+    50: '#fff9ee',
+    100: '#fff0d6',
+    200: '#fde0a8',
+    300: '#f8cd74',
+    400: '#efb84c',
+    500: '#e2a12d',
+    600: '#c98522',
+    700: '#a5671d',
+    800: '#86511c',
+    900: '#6d431a',
+    950: '#3d230d',
+  },
+  soil: {
+    50: '#fbf8f2',
+    100: '#f4ede3',
+    200: '#e7dac8',
+    300: '#d6c2a7',
+    400: '#c0a580',
+    500: '#ab8960',
+    600: '#8b6d4b',
+    700: '#70563d',
+    800: '#5b4634',
+    900: '#4a392b',
+    950: '#281e16',
+  },
+}
+
+export default {
+  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        ...cropGearTheme,
+        destructive: '#ef4444',
+        border: '#d9e6da',
+        input: '#d9e6da',
+        ring: '#44b272',
+        background: '#fffdf8',
+        foreground: '#1f2a22',
+        muted: '#eef6ef',
+        'muted-foreground': '#5f7463',
+        card: '#ffffff',
+        'card-foreground': '#1f2a22',
+        popover: '#ffffff',
+        'popover-foreground': '#1f2a22',
+      },
+      borderRadius: {
+        sm: '0.375rem',
+        md: '0.625rem',
+        lg: '0.75rem',
+        xl: '1rem',
+        xl2: '1.5rem',
+      },
+      boxShadow: {
+        footer: '0 20px 40px rgba(0,0,0,0.15)',
+      },
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+      },
+    },
+  },
+}

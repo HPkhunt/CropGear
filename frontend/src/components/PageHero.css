@@ -1,0 +1,418 @@
+/* ═══════════════════════════════════════════════════════════════════ */
+/* PageHero Component - Enhanced CSS Styling & Animations             */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+@keyframes heroTitleGlow {
+  0%, 100% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 30px rgba(16, 185, 129, 0.5), 0 0 60px rgba(16, 185, 129, 0.2);
+  }
+}
+
+@keyframes heroSubtitleFade {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroStatCardBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes heroBadgeFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes heroGlowPulse {
+  0%, 100% {
+    opacity: 0.5;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.8;
+    filter: brightness(1.1);
+  }
+}
+
+@keyframes heroOrbShine {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes heroBgShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes heroTitleReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) skewY(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) skewY(0);
+  }
+}
+
+/* ─── Hero Section Base ─── */
+.hero-section {
+  position: relative;
+  overflow: hidden;
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    600px at var(--mouse-x) var(--mouse-y),
+    rgba(255, 255, 255, 0.1),
+    transparent 80%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.hero-section:hover::before {
+  opacity: 0.5;
+}
+
+/* ─── Background Effects ─── */
+.hero-bg-gradient {
+  animation: heroBgShift 8s ease infinite;
+}
+
+.hero-grid-pattern {
+  animation: heroGlowPulse 4s ease-in-out infinite;
+}
+
+.hero-glow {
+  z-index: 1;
+}
+
+/* ─── Spotlight Elements ─── */
+.hero-spotlight {
+  animation: heroOrbShine 4s ease-in-out infinite;
+}
+
+.hero-spotlight-1 {
+  animation-delay: 0s;
+}
+
+.hero-spotlight-2 {
+  animation-delay: 2s;
+}
+
+.hero-float-orb {
+  animation: heroBadgeFloat 6s ease-in-out infinite;
+}
+
+/* ─── Title Styling ─── */
+.hero-title {
+  animation: heroTitleReveal 0.8s ease-out forwards;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  line-height: 1.2;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-title:hover {
+  animation: heroTitleGlow 2s ease-in-out infinite;
+}
+
+/* ─── Eyebrow Styling ─── */
+.hero-eyebrow {
+  position: relative;
+  z-index: 2;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  backdrop-filter: blur(12px);
+  width: fit-content;
+  animation: heroSubtitleFade 0.6s ease-out forwards;
+  transition: all 0.3s ease;
+}
+
+.hero-eyebrow:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.2);
+}
+
+/* ─── Subtitle Styling ─── */
+.hero-subtitle {
+  animation: heroSubtitleFade 0.8s ease-out 0.2s forwards;
+  opacity: 0;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── Stats Grid ─── */
+.hero-stats-grid {
+  position: relative;
+  z-index: 2;
+  perspective: 1000px;
+}
+
+.hero-stat-card {
+  animation: heroStatCardBounce 3s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: heroStatCardShine 3s infinite;
+}
+
+.hero-stat-card:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.hero-stat-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.hero-stat-card:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.hero-stat-card:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+  box-shadow: 0 0 40px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+@keyframes heroStatCardShine {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* ─── Badge Styling ─── */
+.hero-showcase-badge {
+  position: relative;
+  z-index: 10;
+  animation: heroBadgeFloat 4s ease-in-out infinite;
+}
+
+.hero-badge-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.hero-badge-content:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1));
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 12px 48px rgba(16, 185, 129, 0.3);
+}
+
+/* ─── Animated Badges ─── */
+.hero-badges-container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: fit-content;
+  max-width: min(100%, 220px);
+  align-items: flex-end;
+}
+
+.hero-animated-badge {
+  animation: heroBadgeFloat 5s ease-in-out infinite;
+  backdrop-filter: blur(16px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-flex !important;
+  align-self: flex-end;
+  width: auto !important;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.hero-animated-badge:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+  transform: translateY(-6px) scale(1.08);
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.4);
+  border-color: rgba(16, 185, 129, 0.6);
+}
+
+.hero-animated-badge:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.hero-animated-badge:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.hero-animated-badge:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* ─── Variant-Specific Styling ─── */
+.hero-default {
+  background-attachment: fixed;
+}
+
+.hero-portal-primary {
+  background-size: 200% 200%;
+  animation: heroBgShift 6s ease infinite;
+}
+
+.hero-portal-secondary {
+  background-size: 200% 200%;
+  animation: heroBgShift 7s ease infinite;
+}
+
+.hero-portal-admin {
+  background-size: 200% 200%;
+  animation: heroBgShift 8s ease infinite;
+}
+
+.hero-harvest {
+  position: relative;
+}
+
+.hero-harvest::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 30% 70%,
+    rgba(210, 140, 35, 0.1),
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+.hero-earth {
+  position: relative;
+}
+
+.hero-earth::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 70% 30%,
+    rgba(125, 133, 82, 0.1),
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+.hero-growth {
+  position: relative;
+}
+
+.hero-growth::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(16, 185, 129, 0.15),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+/* ─── Responsive Adjustments ─── */
+@media (max-width: 768px) {
+  .hero-title {
+    animation-delay: 0s;
+  }
+
+  .hero-subtitle {
+    animation-delay: 0.1s;
+  }
+
+  .hero-stat-card {
+    animation-duration: 2.5s;
+  }
+
+  .hero-showcase-badge {
+    animation-duration: 3.5s;
+  }
+
+  .hero-animated-badge {
+    animation-duration: 4.5s;
+  }
+}
+
+/* ─── Print Styles ─── */
+@media print {
+  .hero-section {
+    animation: none;
+  }
+
+  .hero-title,
+  .hero-subtitle,
+  .hero-stat-card,
+  .hero-showcase-badge,
+  .hero-animated-badge {
+    animation: none;
+    text-shadow: none;
+  }
+}
